@@ -1,0 +1,30 @@
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from database import create_tables
+from routes import router
+
+app = FastAPI(
+    title="RideSafe ZA API",
+    description="Community-powered driver safety for South African riders.",
+    version="1.0.0",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],   # lock this down to your frontend domain in production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(router)
+
+
+@app.on_event("startup")
+def startup():
+    create_tables()
+
+
+@app.get("/", tags=["Health"])
+def health():
+    return {"status": "ok", "app": "RideSafe ZA API v1.0"}
